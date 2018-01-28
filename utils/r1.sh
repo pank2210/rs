@@ -1,0 +1,10 @@
+python myContours.py -r ct1 -i cv_ct_r_1.jpg
+python myContours.py -r cv1 -i cv_cv_r_1.jpg
+python myContours.py -r ik1 -i cv_ik_r_1.jpg
+python myContours.py -r ik2 -i cv_ik_r_2.jpg
+python myContours.py -r mj1 -i cv_mj_r_1.jpg
+python myContours.py -r pb1 -i cv_pb_r_1.jpg
+python myContours.py -r sw1 -i cv_sw_r_1.jpg
+python myContours.py -r vf1 -i cv_vf_r_1.jpg
+python myContours.py -r wf2 -i cv_wf_r_2.jpg
+python myContours.py -r wf3 -i cv_wf_r_3.jpg
