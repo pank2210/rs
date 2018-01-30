@@ -4,6 +4,7 @@ import sys, getopt
 import numpy as np
 import cv2
 import math
+import re
 
 from matplotlib import pyplot as plt
 from skimage import util
@@ -17,6 +18,7 @@ class myImg(object):
       mname = '__init__' 
       
       self.id = imageid
+      self.i_img_file_name = path
 
       if config is None:
         raise Exception("class[" + self.__class__.__name__ + "] error. Exception as config passed is Null.")
@@ -118,6 +120,7 @@ class myImg(object):
       
       self.logger.log('-------------------------------------------------------------------------------')
       self.logger.log('      id         - {}'.format(self.id))
+      self.logger.log('      imgpath    - {}'.format(self.imgpath))
       self.logger.log('      size       - {}'.format(self.size))
       self.logger.log('      shape      - {} X {}'.format(str(self.width),str(self.height)))
       self.logger.log('      rawshape   - {}'.format(self.img.shape))
@@ -158,9 +161,20 @@ class myImg(object):
    def getImageByKey(self,imagekey):
       return self.imgdict[imagekey]
     
-   def saveImage(self):
-      ofile = self.config.odir + 'cntr_' + self.id + '.jpg'
-      cv2.imwrite( ofile, self.getImage())
+   def saveImage(self,img=None,img_type_ext='.jpg',gen_new_filename=False):
+      ofile = ""
+       
+      if gen_new_filename:
+        m1 = re.search("(^.*?)\.(\w{3})$",self.i_img_file_name)
+        ofile = self.config.odir + m1.group(1) + '_u' + img_type_ext
+      else:
+        ofile = self.config.odir + 'cntr_' + self.id + img_type_ext
+       
+      if type(img).__name__ != self.config.typeNone: #img is passed so use it.
+        #print("saveImage: Saving override Image.")
+        cv2.imwrite( ofile, img)
+      else:
+        cv2.imwrite( ofile, self.getImage())
 
    def writeDictImages(self):
       imagekeys = self.imgdict.keys()
@@ -334,6 +348,32 @@ class myImg(object):
         
        return self.imgdict[imagekey]
     
+   def add_text( self, text, x=0, y=0, image_scale=10):
+      """
+      Args:
+          img (numpy array of shape (width, height, 3): input image
+          text (str): text to add to image
+          text_top (int): location of top text to add
+          image_scale (float): image resize scale
+  
+      Summary:
+          Add display text to a frame.
+  
+      Returns:
+          Next available location of top text (allows for chaining this function)
+      """
+      u_img = cv2.putText(
+                    img=self.img,
+                    text=text,
+                    org=(x, y),
+                    fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                    fontScale = 0.15 * image_scale,
+                    color = (255, 0, 0),
+                    thickness = 2)
+      #self.saveImage(img=u_img,img_type_ext='.tif')
+      self.saveImage(img_type_ext='.tif',gen_new_filename=True)
+       
+      return y + int(5 * image_scale)  
 
 def main(argv):
    i_imgpath = ''
@@ -357,14 +397,17 @@ def main(argv):
    print 'Input working directory is "', i_cdir
 
    config = cutil.Config(configid="myConfId",cdir=i_cdir)
-   img1 = myImg(imageid="myImgId",config=config,ekey='x123',path=i_imgpath)
+   img1 = myImg(imageid="xx",config=config,ekey='x123',path=i_imgpath)
    #img2 = myImg(imageid="myImgId2",config=config,ekey='x123',path=None,img = img1.getMorphGradientImage())
    img1.printImageProp()
+   img1.add_text( "FileName: " + i_imgpath, x=200, y=70, image_scale=10)
    #img2.printImageProp()
+   '''
    img1.getHorizontalDialtedImageWithRect()
    img1.getGBinaryImage(fromimagekey="emorphgradient")
    img1.getMorphErode()
    img1.writeDictImages()
+   '''
    #img2.showImageAndHistogram()
 
 if __name__ == "__main__":
